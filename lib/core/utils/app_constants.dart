@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'SwanLife';
-  
+
   // Design size for ScreenUtil (Width x Height)
   // Standard iPhone 13/14 size
   static const double designWidth = 375;

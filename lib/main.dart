@@ -9,12 +9,14 @@ import 'core/utils/app_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize GetStorage
+
   await GetStorage.init();
-  
+
   runApp(const MyApp());
 }
+
+// height 844
+// width 390
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -22,7 +24,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(AppConstants.designWidth, AppConstants.designHeight),
+      designSize: const Size(
+        AppConstants.designWidth,
+        AppConstants.designHeight,
+      ),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {

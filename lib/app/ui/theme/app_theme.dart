@@ -6,6 +6,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      scaffoldBackgroundColor: AppColors.background,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
         primary: AppColors.primary,
@@ -19,12 +20,8 @@ class AppTheme {
           color: AppColors.textPrimary,
           fontWeight: FontWeight.bold,
         ),
-        bodyLarge: GoogleFonts.outfit(
-          color: AppColors.textPrimary,
-        ),
-        bodyMedium: GoogleFonts.outfit(
-          color: AppColors.textSecondary,
-        ),
+        bodyLarge: GoogleFonts.outfit(color: AppColors.textPrimary),
+        bodyMedium: GoogleFonts.outfit(color: AppColors.textSecondary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

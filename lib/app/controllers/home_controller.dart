@@ -1,12 +1,21 @@
 import 'package:get/get.dart';
+import 'package:swanlife/app/controllers/profile_controller.dart';
 
 class HomeController extends GetxController {
-  final count = 0.obs;
+  final ProfileController _profileController = Get.find<ProfileController>();
 
-  @override
-  void onInit() {
-    super.onInit();
+  String get avatarImageUrl => _profileController.avatarImageUrl;
+
+  void onOpenJournal() {
+    // TODO: Navigate to journal
   }
 
-  void increment() => count.value++;
+  void onShopLetsGo() {
+    // TODO: Navigate to shop
+  }
+
+  void onLifestyleStart() {
+    // TODO: Navigate to lifestyle
+  }
 }
+
