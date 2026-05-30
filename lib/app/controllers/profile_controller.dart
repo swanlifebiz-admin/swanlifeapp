@@ -1,9 +1,18 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:swanlife/app/data/repositories/journal_repository.dart';
+import 'package:swanlife/app/data/repositories/user_repository.dart';
+import 'package:swanlife/app/data/services/auth_service.dart';
 import 'package:swanlife/app/models/feed_item_model.dart';
 import 'package:swanlife/app/models/profile_model.dart';
+import 'package:swanlife/app/models/user_model.dart';
 
 class ProfileController extends GetxController {
+  final AuthService _authService = Get.find<AuthService>();
+  final UserRepository _userRepository = Get.find<UserRepository>();
+  final JournalRepository _journalRepository = JournalRepository();
+
   final Rx<ProfileModel> profile = ProfileModel.dummy().obs;
 
   final RxString intentionalPresenceText = ''.obs;
@@ -40,6 +49,14 @@ class ProfileController extends GetxController {
   late final TextEditingController boundarySettingController;
   late final TextEditingController swanSharesController;
 
+  UserModel? _cachedUser;
+  bool _isUpdatingControllers = false;
+
+  Timer? _presenceTimer;
+  Timer? _wealthTimer;
+  Timer? _boundaryTimer;
+  Timer? _sharesTimer;
+
   String get avatarImageUrl => profile.value.avatarImageUrl;
 
   @override
@@ -52,20 +69,117 @@ class ProfileController extends GetxController {
 
     intentionalPresenceController.addListener(() {
       intentionalPresenceText.value = intentionalPresenceController.text;
+      _presenceTimer?.cancel();
+      _presenceTimer = Timer(const Duration(milliseconds: 1000), () {
+        _saveField('intentionalPresence', intentionalPresenceController.text);
+      });
     });
     wealthMindsetController.addListener(() {
       wealthMindsetText.value = wealthMindsetController.text;
+      _wealthTimer?.cancel();
+      _wealthTimer = Timer(const Duration(milliseconds: 1000), () {
+        _saveField('wealthMindset', wealthMindsetController.text);
+      });
     });
     boundarySettingController.addListener(() {
       boundarySettingText.value = boundarySettingController.text;
+      _boundaryTimer?.cancel();
+      _boundaryTimer = Timer(const Duration(milliseconds: 1000), () {
+        _saveField('boundarySetting', boundarySettingController.text);
+      });
     });
     swanSharesController.addListener(() {
       swanSharesText.value = swanSharesController.text;
+      _sharesTimer?.cancel();
+      _sharesTimer = Timer(const Duration(milliseconds: 1000), () {
+        _saveField('swanShares', swanSharesController.text);
+      });
     });
+
+    loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    final firebaseUser = _authService.user;
+    if (firebaseUser == null) return;
+
+    try {
+      final userDoc = await _userRepository.getUser(firebaseUser.uid);
+      if (userDoc != null) {
+        _cachedUser = userDoc;
+
+        final days = userDoc.createdAt != null
+            ? DateTime.now().difference(userDoc.createdAt!).inDays + 1
+            : 1;
+
+        final reflectionCount =
+            await _journalRepository.getReflectionCount(firebaseUser.uid);
+
+        profile.value = ProfileModel(
+          avatarImageUrl: userDoc.profilePic ??
+              'https://resize.allw.mn/filters:format(webp)/filters:quality(70)/800x800/thumbs/76/ufvak7bk60gmpnq5e3c3t_1080x1350.jpg',
+          name: userDoc.name ?? firebaseUser.email?.split('@').first ?? 'User',
+          rankSubtitle: userDoc.rankSubtitle ?? 'THE ETHEREAL PATH x TIER I',
+          daysActive: days,
+          reflections: reflectionCount,
+          visionQuote: userDoc.visionQuote ??
+              '"To live with the grace of a swan-serene above the surface, while navigating the depths with purpose and silent strength."',
+          pondDescription: userDoc.pondDescription ??
+              'Your ripple in the pond is expanding. Keep sharing your reflections and hold steady in your next step.',
+          evolutionProgress: userDoc.evolutionProgress ?? 0.1,
+        );
+
+        _isUpdatingControllers = true;
+        intentionalPresenceController.text = userDoc.intentionalPresence ?? '';
+        wealthMindsetController.text = userDoc.wealthMindset ?? '';
+        boundarySettingController.text = userDoc.boundarySetting ?? '';
+        swanSharesController.text = userDoc.swanShares ?? '';
+        _isUpdatingControllers = false;
+      }
+    } catch (e) {
+      debugPrint("Error loading user profile: $e");
+    }
+  }
+
+  void _saveField(String field, String value) async {
+    if (_isUpdatingControllers) return;
+    final firebaseUser = _authService.user;
+    if (firebaseUser == null || _cachedUser == null) return;
+
+    try {
+      final updatedUser = UserModel(
+        uid: _cachedUser!.uid,
+        email: _cachedUser!.email,
+        name: _cachedUser!.name,
+        profilePic: _cachedUser!.profilePic,
+        createdAt: _cachedUser!.createdAt,
+        rankSubtitle: _cachedUser!.rankSubtitle,
+        visionQuote: _cachedUser!.visionQuote,
+        pondDescription: _cachedUser!.pondDescription,
+        evolutionProgress: _cachedUser!.evolutionProgress,
+        intentionalPresence: field == 'intentionalPresence'
+            ? value
+            : _cachedUser!.intentionalPresence,
+        wealthMindset:
+            field == 'wealthMindset' ? value : _cachedUser!.wealthMindset,
+        boundarySetting:
+            field == 'boundarySetting' ? value : _cachedUser!.boundarySetting,
+        swanShares: field == 'swanShares' ? value : _cachedUser!.swanShares,
+      );
+
+      _cachedUser = updatedUser;
+      await _userRepository.updateUser(updatedUser);
+    } catch (e) {
+      debugPrint("Error updating profile field $field: $e");
+    }
   }
 
   @override
   void onClose() {
+    _presenceTimer?.cancel();
+    _wealthTimer?.cancel();
+    _boundaryTimer?.cancel();
+    _sharesTimer?.cancel();
     intentionalPresenceController.dispose();
     wealthMindsetController.dispose();
     boundarySettingController.dispose();

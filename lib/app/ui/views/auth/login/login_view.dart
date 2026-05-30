@@ -141,7 +141,16 @@ class LoginView extends GetView<LoginController> {
                         letterSpacing: 2.0,
                       ),
                       filled: false,
-
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.obscurePassword.value
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.loginTextMuted,
+                          size: 20.sp,
+                        ),
+                        onPressed: controller.togglePasswordVisibility,
+                      ),
                       contentPadding: EdgeInsets.symmetric(vertical: 12.h),
                       border: const UnderlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFFD5C5C5)),
@@ -183,9 +192,12 @@ class LoginView extends GetView<LoginController> {
 
               Padding(
                 padding: EdgeInsets.only(top: 40.h, left: 24.w, right: 24.w),
-                child: PrimaryButton(
-                  text: "Enter The Sanctuary",
-                  onTap: () => controller.login(),
+                child: Obx(
+                  () => PrimaryButton(
+                    text: "Enter The Sanctuary",
+                    isLoading: controller.isLoading.value,
+                    onTap: () => controller.login(),
+                  ),
                 ),
               ),
               Container(

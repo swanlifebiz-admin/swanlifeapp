@@ -25,7 +25,7 @@ class SettingsSectionCard extends StatelessWidget {
           style: GoogleFonts.manrope(
             fontSize: 19.sp,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2B2B2B),
+            color: SettingsTokens.getTitleColor(context),
             height: 1.2,
           ),
         ),
@@ -33,7 +33,7 @@ class SettingsSectionCard extends StatelessWidget {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.cardBg,
+            color: SettingsTokens.getCardBgColor(context),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.symmetric(vertical: 8),

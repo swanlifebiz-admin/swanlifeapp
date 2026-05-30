@@ -46,11 +46,11 @@ class SettingsNavTile extends StatelessWidget {
                         width: iconWidth.sp,
                         height: iconHeight.sp,
                         colorFilter: ColorFilter.mode(
-                          SettingsTokens.iconColor,
+                          SettingsTokens.getIconColor(context),
                           BlendMode.srcIn,
                         ),
                       )
-                    : Icon(icon!, size: 24, color: SettingsTokens.iconColor),
+                    : Icon(icon!, size: 24, color: SettingsTokens.getIconColor(context)),
                 const SizedBox(width: 14),
                 Expanded(
                   child: CustomTextWidget(
@@ -58,7 +58,7 @@ class SettingsNavTile extends StatelessWidget {
                     style: GoogleFonts.manrope(
                       fontSize: 17.sp,
                       fontWeight: FontWeight.w500,
-                      color: SettingsTokens.tileLabelColor,
+                      color: SettingsTokens.getTileLabelColor(context),
                       height: 1.2,
                     ),
                   ),
@@ -66,7 +66,7 @@ class SettingsNavTile extends StatelessWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 24,
-                  color: SettingsTokens.iconColor,
+                  color: SettingsTokens.getIconColor(context),
                 ),
               ],
             ),

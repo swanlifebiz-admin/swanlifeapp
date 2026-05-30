@@ -15,6 +15,7 @@ class PrimaryButton extends StatelessWidget {
   final Color? textColor;
   final Color? splashColor;
   final Color? highlightColor;
+  final bool isLoading;
 
   const PrimaryButton({
     super.key,
@@ -28,6 +29,7 @@ class PrimaryButton extends StatelessWidget {
     this.textColor,
     this.splashColor,
     this.highlightColor,
+    this.isLoading = false,
   });
 
   @override
@@ -35,7 +37,7 @@ class PrimaryButton extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
       child: GestureDetector(
-        onTap: onTap,
+        onTap: isLoading ? null : onTap,
         child: Container(
           width: width ?? double.infinity,
           height: height ?? 50.h,
@@ -52,20 +54,34 @@ class PrimaryButton extends StatelessWidget {
             ],
           ),
           child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomTextWidget(
-                  text: text,
-                  style: GoogleFonts.plusJakartaSans(
-                    color: textColor ?? Colors.white,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+            child: isLoading
+                ? SizedBox(
+                    height: 20.h,
+                    width: 20.h,
+                    child: const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isImage == true && image != null)
+                        Padding(
+                          padding: EdgeInsets.only(right: 8.w),
+                          child: Image.asset(image!, height: 20.h),
+                        ),
+                      CustomTextWidget(
+                        text: text,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: textColor ?? Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

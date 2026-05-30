@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "376459361496",
+    "project_id": "swanlife-bb073",
+    "storage_bucket": "swanlife-bb073.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376459361496:android:6d486bdbefc88a1e51ebad",
+        "android_client_info": {
+          "package_name": "com.app.swanlife"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDywXSnlI-lBus-QcSP24B5g4W16ipkHX4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -49,8 +49,12 @@ class AudioView extends GetView<AudioController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final titleTextColor = isDark ? Colors.white : AppColors.loginTextDark;
+    final bodyTextColor = isDark ? Colors.white70 : AppColors.loginTextMuted;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -69,7 +73,7 @@ class AudioView extends GetView<AudioController> {
                         fontSize: 11.sp,
                         letterSpacing: 2,
                         fontWeight: FontWeight.w300,
-                        color: AppColors.loginTextMuted,
+                        color: bodyTextColor,
                       ),
                     ),
                     GestureDetector(
@@ -77,6 +81,12 @@ class AudioView extends GetView<AudioController> {
                       child: SvgPicture.asset(
                         'assets/images/settings.svg',
                         height: 19.sp,
+                        colorFilter: isDark
+                            ? const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
+                              )
+                            : null,
                       ),
                     ),
                   ],
@@ -88,7 +98,7 @@ class AudioView extends GetView<AudioController> {
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 35.sp,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.loginTextDark,
+                      color: titleTextColor,
                       height: 1.2,
                     ),
                   ),
@@ -100,7 +110,7 @@ class AudioView extends GetView<AudioController> {
                     style: GoogleFonts.manrope(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w300,
-                      color: AppColors.loginTextMuted,
+                      color: bodyTextColor,
                       height: 1.5,
                     ),
                   ),
@@ -117,7 +127,15 @@ class AudioView extends GetView<AudioController> {
                         ),
                         painter: WaveformPainter(
                           barHeights: _barHeights,
-                          barColors: _barColors,
+                          barColors: isDark
+                              ? _barColors
+                                    .map(
+                                      (c) => c == const Color(0xFF000000)
+                                          ? Colors.white
+                                          : Colors.white60,
+                                    )
+                                    .toList()
+                              : _barColors,
                           maxHeight: _maxBarHeight,
                           barWidth: _barWidth,
                           barSpacing: _barSpacing,
@@ -176,13 +194,15 @@ class AudioView extends GetView<AudioController> {
                           fontSize: 11.sp,
                           letterSpacing: 2,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+                          color: isDark
+                              ? Colors.white70
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ),
                   ),
                 ),
-               
+
                 Padding(
                   padding: EdgeInsets.only(top: 20.h),
                   child: Row(
@@ -193,7 +213,7 @@ class AudioView extends GetView<AudioController> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 19.sp,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.loginTextDark,
+                          color: titleTextColor,
                         ),
                       ),
                       Text(
@@ -202,7 +222,9 @@ class AudioView extends GetView<AudioController> {
                           fontSize: 12.sp,
                           letterSpacing: 1.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+                          color: isDark
+                              ? Colors.white60
+                              : AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -210,11 +232,13 @@ class AudioView extends GetView<AudioController> {
                 ),
                 SizedBox(height: 15.h),
                 _buildJournalCard(
+                  context: context,
                   title: 'Morning Radiance',
                   subtitle: 'October 24 • 4:12',
                 ),
                 SizedBox(height: 10.h),
                 _buildJournalCard(
+                  context: context,
                   title: 'Evening Surrender',
                   subtitle: 'October 22 • 12:45',
                 ),
@@ -227,11 +251,18 @@ class AudioView extends GetView<AudioController> {
     );
   }
 
-  Widget _buildJournalCard({required String title, required String subtitle}) {
+  Widget _buildJournalCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+  }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: isDark ? const Color(0xFF1E1E1E) : AppColors.cardBg,
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: Row(
@@ -241,12 +272,11 @@ class AudioView extends GetView<AudioController> {
             height: 40.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.white
-              
+              color: isDark ? const Color(0xFF2E2E2E) : AppColors.white,
             ),
             child: Icon(
               Icons.play_arrow_rounded,
-              color: Color(0XFF735C00),
+              color: isDark ? AppColors.primary : const Color(0XFF735C00),
               size: 20.sp,
             ),
           ),
@@ -260,7 +290,7 @@ class AudioView extends GetView<AudioController> {
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.loginTextDark,
+                    color: isDark ? Colors.white : AppColors.loginTextDark,
                   ),
                 ),
                 SizedBox(height: 2.h),
@@ -268,7 +298,7 @@ class AudioView extends GetView<AudioController> {
                   subtitle,
                   style: GoogleFonts.manrope(
                     fontSize: 14.sp,
-                    color: AppColors.loginTextMuted,
+                    color: isDark ? Colors.white70 : AppColors.loginTextMuted,
                   ),
                 ),
               ],

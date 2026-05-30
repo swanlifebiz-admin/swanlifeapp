@@ -7,11 +7,13 @@ class JournalPromptBlock extends StatelessWidget {
   const JournalPromptBlock({
     super.key,
     required this.answerLabel,
-    required this.answerText,
+    required this.controller,
+    required this.hintText,
   });
 
   final String answerLabel;
-  final String answerText;
+  final TextEditingController controller;
+  final String hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +30,25 @@ class JournalPromptBlock extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8.h),
-        Text(
-          answerText,
+        TextField(
+          controller: controller,
+          maxLines: null,
+          keyboardType: TextInputType.multiline,
           style: GoogleFonts.notoSerif(
             fontSize: 16.sp,
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w400,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: GoogleFonts.notoSerif(
+              fontSize: 16.sp,
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
+              fontWeight: FontWeight.w400,
+            ),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
           ),
         ),
         SizedBox(height: 8.h),

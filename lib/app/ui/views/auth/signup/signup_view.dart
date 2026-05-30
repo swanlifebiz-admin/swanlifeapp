@@ -9,9 +9,9 @@ import 'package:swanlife/app/ui/views/auth/signup/components/signup_create_accou
 import 'package:swanlife/app/ui/views/auth/signup/components/signup_hero_section.dart';
 import 'package:swanlife/app/ui/views/auth/signup/components/signup_terms_row.dart';
 import 'package:swanlife/app/ui/views/auth/signup/components/signup_underline_field.dart';
+import 'package:swanlife/app/ui/widgets/custom_text_widget.dart';
 
 import '../../../../routes/app_routes.dart';
-import '../../../widgets/custom_text_widget.dart';
 import '../../../widgets/primary_button.dart';
 
 class SignupView extends GetView<SignupController> {
@@ -77,6 +77,16 @@ class SignupView extends GetView<SignupController> {
                       ),
                       filled: false,
 
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.obscurePassword.value
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.loginTextMuted,
+                          size: 20.sp,
+                        ),
+                        onPressed: controller.togglePasswordVisibility,
+                      ),
                       contentPadding: EdgeInsets.symmetric(vertical: 12.h),
                       border: const UnderlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFFD5C5C5)),
@@ -106,9 +116,12 @@ class SignupView extends GetView<SignupController> {
               ),
               Padding(
                 padding: EdgeInsets.only(top: 25.h, left: 24.w, right: 24.w),
-                child: PrimaryButton(
-                  text: "Join Swanlife",
-                  onTap: () => controller.signup(),
+                child: Obx(
+                  () => PrimaryButton(
+                    text: "Join Swanlife",
+                    isLoading: controller.isLoading.value,
+                    onTap: () => controller.signup(),
+                  ),
                 ),
               ),
               Padding(
