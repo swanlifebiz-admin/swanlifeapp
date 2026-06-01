@@ -216,31 +216,60 @@ class AudioView extends GetView<AudioController> {
                           color: titleTextColor,
                         ),
                       ),
-                      Text(
-                        'VIEW ALL',
-                        style: GoogleFonts.manrope(
-                          fontSize: 12.sp,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? Colors.white60
-                              : AppColors.textSecondary,
+                      Obx(
+                        () => Text(
+                          '${controller.recordings.length} RECORDINGS',
+                          style: GoogleFonts.manrope(
+                            fontSize: 12.sp,
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? Colors.white60
+                                : AppColors.textSecondary,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
                 SizedBox(height: 15.h),
-                _buildJournalCard(
-                  context: context,
-                  title: 'Morning Radiance',
-                  subtitle: 'October 24 • 4:12',
-                ),
-                SizedBox(height: 10.h),
-                _buildJournalCard(
-                  context: context,
-                  title: 'Evening Surrender',
-                  subtitle: 'October 22 • 12:45',
+                Obx(
+                  () => controller.isLoading.value
+                      ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : controller.recordings.isEmpty
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40.h),
+                              child: Center(
+                                child: Text(
+                                  'No recordings yet.\nTap the mic to start recording.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 14.sp,
+                                    color: bodyTextColor,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Column(
+                              children: controller.recordings
+                                  .map((recording) => Padding(
+                                        padding:
+                                            EdgeInsets.only(bottom: 10.h),
+                                        child: _buildJournalCard(
+                                          context: context,
+                                          title: recording.title,
+                                          subtitle: _formatDate(recording.createdAt),
+                                          url: recording.url,
+                                          recordingId: recording.id,
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
                 ),
                 SizedBox(height: 32.h),
               ],
@@ -251,60 +280,92 @@ class AudioView extends GetView<AudioController> {
     );
   }
 
+  String _formatDate(DateTime date) {
+    final months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    return '${months[date.month - 1]} ${date.day} • ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
   Widget _buildJournalCard({
     required BuildContext context,
     required String title,
     required String subtitle,
+    String? url,
+    String? recordingId,
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E1E) : AppColors.cardBg,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40.w,
-            height: 40.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isDark ? const Color(0xFF2E2E2E) : AppColors.white,
-            ),
-            child: Icon(
-              Icons.play_arrow_rounded,
-              color: isDark ? AppColors.primary : const Color(0XFF735C00),
-              size: 20.sp,
-            ),
-          ),
-          SizedBox(width: 14.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : AppColors.loginTextDark,
-                  ),
+    return GestureDetector(
+      onTap: () {
+        if (url != null && recordingId != null) {
+          controller.playAudio(recordingId, url);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : AppColors.cardBg,
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          children: [
+            Obx(
+              () => Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDark ? const Color(0xFF2E2E2E) : AppColors.white,
                 ),
-                SizedBox(height: 2.h),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.manrope(
-                    fontSize: 14.sp,
-                    color: isDark ? Colors.white70 : AppColors.loginTextMuted,
-                  ),
+                child: Icon(
+                  controller.currentlyPlayingId.value == recordingId &&
+                          controller.isPlaying.value
+                      ? Icons.pause_rounded
+                      : Icons.play_arrow_rounded,
+                  color: isDark ? AppColors.primary : const Color(0XFF735C00),
+                  size: 20.sp,
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : AppColors.loginTextDark,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.manrope(
+                      fontSize: 14.sp,
+                      color: isDark ? Colors.white70 : AppColors.loginTextMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
