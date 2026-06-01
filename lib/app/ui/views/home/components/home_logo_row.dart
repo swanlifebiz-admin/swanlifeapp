@@ -5,8 +5,15 @@ import 'package:swanlife/app/ui/theme/app_colors.dart';
 
 class HomeLogoRow extends StatelessWidget {
   final String avatarImageUrl;
+  final VoidCallback? onNotificationTap;
+  final int unreadCount;
 
-  const HomeLogoRow({super.key, required this.avatarImageUrl});
+  const HomeLogoRow({
+    super.key,
+    required this.avatarImageUrl,
+    this.onNotificationTap,
+    this.unreadCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +59,47 @@ class HomeLogoRow extends StatelessWidget {
                 color: AppColors.loginTextDark,
               ),
             ),
+            if (onNotificationTap != null)
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: onNotificationTap,
+                  child: Stack(
+                    children: [
+                      Icon(
+                        Icons.notifications_outlined,
+                        size: 24.sp,
+                        color: AppColors.loginTextDark,
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: Container(
+                            padding: EdgeInsets.all(2.r),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 14.r,
+                              minHeight: 14.r,
+                            ),
+                            child: Text(
+                              unreadCount > 9 ? '9+' : unreadCount.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 8.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),

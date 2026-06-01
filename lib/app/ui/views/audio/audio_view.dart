@@ -308,21 +308,21 @@ class AudioView extends GetView<AudioController> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: () {
-        if (url != null && recordingId != null) {
-          controller.playAudio(recordingId, url);
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E1E1E) : AppColors.cardBg,
-          borderRadius: BorderRadius.circular(14.r),
-        ),
-        child: Row(
-          children: [
-            Obx(
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : AppColors.cardBg,
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              if (url != null && recordingId != null) {
+                controller.playAudio(recordingId, url);
+              }
+            },
+            child: Obx(
               () => Container(
                 width: 40.w,
                 height: 40.w,
@@ -340,8 +340,15 @@ class AudioView extends GetView<AudioController> {
                 ),
               ),
             ),
-            SizedBox(width: 14.w),
-            Expanded(
+          ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (url != null && recordingId != null) {
+                  controller.playAudio(recordingId, url);
+                }
+              },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -364,8 +371,17 @@ class AudioView extends GetView<AudioController> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          if (recordingId != null && url != null)
+            GestureDetector(
+              onTap: () => controller.deleteRecording(recordingId, url),
+              child: Icon(
+                Icons.delete_outline,
+                color: isDark ? Colors.white54 : AppColors.loginTextMuted,
+                size: 20.sp,
+              ),
+            ),
+        ],
       ),
     );
   }

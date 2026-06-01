@@ -10,6 +10,7 @@ import '../ui/views/auth/splash/splash_view.dart';
 import '../bindings/splash_binding.dart';
 import '../ui/views/settings/general/settings_view.dart';
 import '../ui/views/settings/notification/notification_settings_view.dart';
+import '../ui/views/notifications/notifications_view.dart';
 
 class AppPages {
   static const INITIAL = Routes.SPLASH;
@@ -43,6 +44,11 @@ class AppPages {
     GetPage(
       name: Routes.NOTIFICATION_SETTINGS,
       page: () => const NotificationSettingsView(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: Routes.NOTIFICATIONS,
+      page: () => const NotificationsView(),
       transition: Transition.cupertino,
     ),
   ];

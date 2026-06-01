@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
+import '../data/services/notification_service.dart';
 
 class AudioController extends GetxController {
   final RxBool isRecording = false.obs;
@@ -26,6 +27,7 @@ class AudioController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final NotificationService _notificationService = NotificationService();
 
   @override
   void onInit() {
@@ -163,6 +165,12 @@ class AudioController extends GetxController {
       recording.id = docRef.id;
       recordings.insert(0, recording);
 
+      await _notificationService.createNotification(
+        title: 'Audio Saved',
+        body: 'Your recording "$title" has been saved successfully.',
+        type: 'audio',
+      );
+
       Get.snackbar('Success', 'Recording saved successfully');
     } catch (e) {
       Get.snackbar('Error', 'Failed to save recording: $e');
@@ -227,6 +235,67 @@ class AudioController extends GetxController {
       currentlyPlayingId.value = '';
     } catch (e) {
       print('Error stopping audio: $e');
+    }
+  }
+
+  Future<void> deleteRecording(String recordingId, String url) async {
+    try {
+      final confirmed = await Get.dialog(
+        AlertDialog(
+          title: const Text('Delete Recording'),
+          content: const Text('Are you sure you want to delete this recording?'),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: true),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed != true) return;
+
+      isLoading.value = true;
+
+      final user = _auth.currentUser;
+      if (user == null) {
+        Get.snackbar('Error', 'User not authenticated');
+        return;
+      }
+
+      // Delete from Firestore
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('recordings')
+          .doc(recordingId)
+          .delete();
+
+      // Delete from Firebase Storage (extract file path from URL)
+      try {
+        final ref = _storage.refFromURL(url);
+        await ref.delete();
+      } catch (e) {
+        print('Error deleting from storage: $e');
+      }
+
+      // Remove from local list
+      recordings.removeWhere((r) => r.id == recordingId);
+
+      // Stop if this was the currently playing recording
+      if (currentlyPlayingId.value == recordingId) {
+        await stopAudio();
+      }
+
+      Get.snackbar('Success', 'Recording deleted successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to delete recording: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 

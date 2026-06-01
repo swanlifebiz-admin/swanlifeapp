@@ -30,7 +30,13 @@ class HomeView extends GetView<HomeController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 10.h),
-              HomeLogoRow(avatarImageUrl: controller.avatarImageUrl),
+              Obx(
+                () => HomeLogoRow(
+                  avatarImageUrl: controller.avatarImageUrl,
+                  onNotificationTap: controller.onNotificationsTap,
+                  unreadCount: controller.unreadCount.value,
+                ),
+              ),
               const HomeGreetingSection(),
               SizedBox(height: 16.h),
               Padding(

@@ -5,6 +5,7 @@ abstract class Routes {
   static const HOME = _Paths.HOME;
   static const SETTINGS = _Paths.SETTINGS;
   static const NOTIFICATION_SETTINGS = _Paths.NOTIFICATION_SETTINGS;
+  static const NOTIFICATIONS = _Paths.NOTIFICATIONS;
 }
 
 abstract class _Paths {
@@ -14,4 +15,5 @@ abstract class _Paths {
   static const HOME = '/home';
   static const SETTINGS = '/settings';
   static const NOTIFICATION_SETTINGS = '/notification-settings';
+  static const NOTIFICATIONS = '/notifications';
 }

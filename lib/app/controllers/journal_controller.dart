@@ -7,11 +7,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import '../data/repositories/journal_repository.dart';
 import '../data/services/auth_service.dart';
+import '../data/services/notification_service.dart';
 import '../models/journal_entry_model.dart';
 
 class JournalController extends GetxController {
   final JournalRepository _journalRepository = JournalRepository();
   final AuthService _authService = Get.find<AuthService>();
+  final NotificationService _notificationService = NotificationService();
 
   final trueReflectionController = TextEditingController();
   final theAnswerController = TextEditingController();
@@ -169,6 +171,12 @@ class JournalController extends GetxController {
 
       await _journalRepository.saveJournalEntry(entry);
       _resetForm();
+
+      await _notificationService.createNotification(
+        title: 'Journal Saved',
+        body: 'Your reflection has been safely stored.',
+        type: 'journal',
+      );
 
       Get.snackbar(
         'Reflection Saved',
