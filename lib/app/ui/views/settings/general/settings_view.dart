@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:swanlife/app/data/services/auth_service.dart';
 import 'package:swanlife/app/controllers/main_shell_controller.dart';
 import 'package:swanlife/app/routes/app_routes.dart';
@@ -160,7 +162,7 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
             SizedBox(height: 20.h),
-            SettingsDeleteAccountButton(onPressed: () {}),
+            SettingsDeleteAccountButton(onPressed: () => _deleteAccount()),
             SizedBox(height: 50.h),
           ],
         ),
@@ -366,5 +368,129 @@ class _SettingsViewState extends State<SettingsView> {
         ],
       ),
     );
+  }
+
+  Future<void> _deleteAccount() async {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final confirmed = await Get.dialog(
+      AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Delete Account',
+          style: GoogleFonts.notoSerif(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : const Color(0xFF2B2B2B),
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
+          style: GoogleFonts.manrope(
+            fontSize: 14,
+            color: isDark ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.manrope(
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text(
+              'Delete',
+              style: GoogleFonts.manrope(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    try {
+      final auth = FirebaseAuth.instance;
+      final firestore = FirebaseFirestore.instance;
+      final storage = FirebaseStorage.instance;
+      final user = auth.currentUser;
+
+      if (user == null) {
+        Get.back();
+        Get.snackbar('Error', 'User not authenticated');
+        return;
+      }
+
+      // Delete user data from Firestore
+      final userDoc = firestore.collection('users').doc(user.uid);
+
+      // Delete journal entries
+      final journalSnapshot = await userDoc.collection('journal_entries').get();
+      for (var doc in journalSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Delete recordings
+      final recordingsSnapshot = await userDoc.collection('recordings').get();
+      for (var doc in recordingsSnapshot.docs) {
+        final data = doc.data();
+        final url = data['url'] as String?;
+        if (url != null) {
+          try {
+            final ref = storage.refFromURL(url);
+            await ref.delete();
+          } catch (e) {
+            print('Error deleting storage file: $e');
+          }
+        }
+        await doc.reference.delete();
+      }
+
+      // Delete notifications
+      final notificationsSnapshot = await userDoc.collection('notifications').get();
+      for (var doc in notificationsSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Delete user document
+      await userDoc.delete();
+
+      // Delete authentication
+      await user.delete();
+
+      // Clear local storage
+      await GetStorage().erase();
+
+      Get.back(); // Close loading dialog
+      Get.offAllNamed(Routes.SPLASH);
+      Get.snackbar(
+        'Account Deleted',
+        'Your account has been successfully deleted.',
+        backgroundColor: Colors.green.withOpacity(0.1),
+        colorText: Colors.green[800],
+      );
+    } catch (e) {
+      Get.back(); // Close loading dialog
+      Get.snackbar(
+        'Error',
+        'Failed to delete account: $e',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red[800],
+      );
+    }
   }
 }
