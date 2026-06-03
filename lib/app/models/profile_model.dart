@@ -6,7 +6,9 @@ class ProfileModel {
   final int reflections;
   final String visionQuote;
   final String pondDescription;
-  final double evolutionProgress;
+  final int textEntries;
+  final int videoEntries;
+  final int mediaEntries;
 
   const ProfileModel({
     required String avatarImageUrl,
@@ -16,10 +18,18 @@ class ProfileModel {
     required this.reflections,
     required this.visionQuote,
     required this.pondDescription,
-    required this.evolutionProgress,
+    this.textEntries = 0,
+    this.videoEntries = 0,
+    this.mediaEntries = 0,
   }) : _avatarImageUrl = avatarImageUrl;
 
   String get avatarImageUrl => _avatarImageUrl;
+
+  /// Total activity actions the user has performed.
+  int get totalActivity => textEntries + videoEntries + mediaEntries;
+
+  /// Progress 0.0–1.0 capped at 50 total activities.
+  double get evolutionProgress => (totalActivity / 50.0).clamp(0.0, 1.0);
 
   factory ProfileModel.dummy() {
     return const ProfileModel(
@@ -30,10 +40,12 @@ class ProfileModel {
       daysActive: 142,
       reflections: 32,
       visionQuote:
-          '"To live with the grace of a swan-serene above the surface, while navigating the depths with purpose and silent strangth."',
+          '"To live with the grace of a swan-serene above the surface, while navigating the depths with purpose and silent strength."',
       pondDescription:
           'Your ripple in the pond is expanding. Keep sharing your reflections and hold steady in your next step.',
-      evolutionProgress: 0.68,
+      textEntries: 18,
+      videoEntries: 9,
+      mediaEntries: 5,
     );
   }
 }

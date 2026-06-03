@@ -5,9 +5,14 @@ import 'package:swanlife/app/ui/theme/app_colors.dart';
 import 'package:swanlife/app/ui/views/home/components/home_gold_pill_button.dart';
 
 class HomeHealingJournalingSection extends StatelessWidget {
-  const HomeHealingJournalingSection({super.key, required this.onOpenJournal});
+  const HomeHealingJournalingSection({
+    super.key,
+    required this.onOpenJournal,
+    this.latestJournalText,
+  });
 
   final VoidCallback onOpenJournal;
+  final String? latestJournalText;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +31,8 @@ class HomeHealingJournalingSection extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
           Text(
-            'Release the shadow of yesterday. Today\'s\nprompt explores the beauty of quiet\ntransitions.',
+            latestJournalText ??
+                'Release the shadow of yesterday. Today\'s\nprompt explores the beauty of quiet\ntransitions.',
             style: GoogleFonts.manrope(
               fontSize: 16.sp,
               fontWeight: FontWeight.w400,

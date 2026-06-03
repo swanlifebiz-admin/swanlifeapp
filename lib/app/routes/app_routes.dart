@@ -6,6 +6,8 @@ abstract class Routes {
   static const SETTINGS = _Paths.SETTINGS;
   static const NOTIFICATION_SETTINGS = _Paths.NOTIFICATION_SETTINGS;
   static const NOTIFICATIONS = _Paths.NOTIFICATIONS;
+  static const AUDIO_JOURNAL = _Paths.AUDIO_JOURNAL;
+  static const JOURNAL = _Paths.JOURNAL;
 }
 
 abstract class _Paths {
@@ -16,4 +18,6 @@ abstract class _Paths {
   static const SETTINGS = '/settings';
   static const NOTIFICATION_SETTINGS = '/notification-settings';
   static const NOTIFICATIONS = '/notifications';
+  static const AUDIO_JOURNAL = '/audio-journal';
+  static const JOURNAL = '/journal';
 }

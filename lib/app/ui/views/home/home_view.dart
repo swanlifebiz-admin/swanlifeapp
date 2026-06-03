@@ -44,8 +44,11 @@ class HomeView extends GetView<HomeController> {
                 child: const HomeHeroCard(),
               ),
               SizedBox(height: 24.h),
-              HomeHealingJournalingSection(
-                onOpenJournal: controller.onOpenJournal,
+              Obx(
+                () => HomeHealingJournalingSection(
+                  onOpenJournal: controller.onOpenJournal,
+                  latestJournalText: controller.latestJournalText.value,
+                ),
               ),
               SizedBox(height: 20.h),
               const HomeFeaturedGuideCard(),

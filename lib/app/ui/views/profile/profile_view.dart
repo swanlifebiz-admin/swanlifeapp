@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:swanlife/app/controllers/profile_controller.dart';
 import 'package:swanlife/app/ui/views/profile/components/essence_input_field.dart';
 import 'package:swanlife/app/ui/views/profile/components/feed_section.dart';
@@ -56,6 +57,7 @@ class ProfileView extends GetView<ProfileController> {
                               imageUrl: profile.avatarImageUrl,
                               name: profile.name,
                               subtitle: profile.rankSubtitle,
+                              onEditPhoto: controller.updateProfilePicture,
                             ),
                           ),
                           SizedBox(height: 28.h),
@@ -68,7 +70,59 @@ class ProfileView extends GetView<ProfileController> {
                             ),
                           ),
                           SizedBox(height: 30.h),
-                          withHorizontalInset(SectionTitle(title: 'Core Essence')),
+                          withHorizontalInset(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SectionTitle(title: 'Core Essence'),
+                                Obx(() {
+                                  final status = controller.saveStatus.value;
+                                  if (status.isEmpty) return const SizedBox.shrink();
+
+                                  final isSaving = status == 'Saving...';
+                                  final isError = status == 'Error';
+
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (isSaving)
+                                        SizedBox(
+                                          width: 10.w,
+                                          height: 10.w,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 1.5,
+                                            valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
+                                          ),
+                                        )
+                                      else if (isError)
+                                        Icon(
+                                          Icons.error_outline_rounded,
+                                          size: 14.sp,
+                                          color: Colors.red,
+                                        )
+                                      else
+                                        Icon(
+                                          Icons.check_circle_outline_rounded,
+                                          size: 14.sp,
+                                          color: Colors.green,
+                                        ),
+                                      SizedBox(width: 6.w),
+                                      Text(
+                                        status,
+                                        style: GoogleFonts.manrope(
+                                          fontSize: 12.sp,
+                                          color: isSaving
+                                              ? scheme.onSurfaceVariant
+                                              : (isError ? Colors.red : Colors.green),
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
                           SizedBox(height: 14.h),
                           
                           withHorizontalInset(
@@ -95,6 +149,9 @@ class ProfileView extends GetView<ProfileController> {
                             PondCommunitySection(
                               progress: profile.evolutionProgress,
                               description: profile.pondDescription,
+                              textEntries: profile.textEntries,
+                              videoEntries: profile.videoEntries,
+                              mediaEntries: profile.mediaEntries,
                             ),
                           ),
                           SizedBox(height: 30.h),

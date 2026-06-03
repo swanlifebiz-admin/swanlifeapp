@@ -48,4 +48,60 @@ class JournalRepository {
       return 0;
     }
   }
+
+  Future<JournalEntryModel?> getLatestTextJournal(String userId) async {
+    try {
+      final snapshot = await _db
+          .collection('journals')
+          .where('userId', isEqualTo: userId)
+          .get();
+      
+      final entries = snapshot.docs
+          .map((doc) => JournalEntryModel.fromMap(doc.data(), docId: doc.id))
+          .toList();
+      
+      // Sort in-memory to avoid needing composite Firestore index
+      entries.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      
+      for (final entry in entries) {
+        if (entry.trueReflection.trim().isNotEmpty || entry.theAnswer.trim().isNotEmpty) {
+          return entry;
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Returns [textCount, videoCount, mediaCount] in one Firestore round-trip.
+  Future<({int textCount, int videoCount, int mediaCount})> getActivityStats(
+    String userId,
+  ) async {
+    try {
+      final snapshot = await _db
+          .collection('journals')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      int text = 0, video = 0, media = 0;
+      for (final doc in snapshot.docs) {
+        final d = doc.data();
+        final hasText =
+            (d['trueReflection'] as String? ?? '').trim().isNotEmpty ||
+            (d['theAnswer'] as String? ?? '').trim().isNotEmpty;
+        final hasVideo = (d['videoUrl'] as String?) != null;
+        final hasMedia =
+            (d['audioUrl'] as String?) != null ||
+            (d['imageUrl'] as String?) != null;
+
+        if (hasText) text++;
+        if (hasVideo) video++;
+        if (hasMedia) media++;
+      }
+      return (textCount: text, videoCount: video, mediaCount: media);
+    } catch (_) {
+      return (textCount: 0, videoCount: 0, mediaCount: 0);
+    }
+  }
 }

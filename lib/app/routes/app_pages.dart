@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
+import 'package:swanlife/app/bindings/audio_binding.dart';
 import 'package:swanlife/app/routes/app_routes.dart';
+import 'package:swanlife/app/ui/views/audio/audio_view.dart';
+import 'package:swanlife/app/ui/views/journal/journal_view.dart';
 import '../ui/views/main_shell_view.dart';
 import '../bindings/main_shell_binding.dart';
 import '../ui/views/auth/login/login_view.dart';
@@ -49,6 +52,17 @@ class AppPages {
     GetPage(
       name: Routes.NOTIFICATIONS,
       page: () => const NotificationsView(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: Routes.AUDIO_JOURNAL,
+      page: () => const AudioView(),
+      binding: AudioBinding(),
+      transition: Transition.cupertino,
+    ),
+    GetPage(
+      name: Routes.JOURNAL,
+      page: () => const JournalView(),
       transition: Transition.cupertino,
     ),
   ];
